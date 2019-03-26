@@ -1,6 +1,6 @@
 module.exports = {
 	apps : [{
-		name: "Websocket-Host",
+		name: "WebsocketHost",
 		script: "./index.js",
 		merge_logs: true,
 		autorestart: true,
