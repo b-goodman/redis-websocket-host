@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const http = require("http").Server(app);
-// const io = require("socket.io")(http);
+const io = require("socket.io")(http);
 // const fs = require("fs");
 const config = require("./config.json");
 
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 const redis = require("redis");
 const client = redis.createClient(`redis://${config.redis.host}:${config.redis.port}`);
 
-// Redis Client Ready
+// Redis Client
 client.once("ready", () => {
 	console.log(`Redis client connected on ${config.redis.host}:${config.redis.port}`);
 	// Flush Redis DB
@@ -38,12 +38,28 @@ app.post("/set", function(req, res) {
 		if (err) {
 			throw err;
 		} else {
+			io.emit("redis_set", {key:key, value:value}); //send message directly to your socket parser
 			res.send({
 				"status": "OK",
 				"reply": reply
 			});
 		}
 	});
+});
+
+
+// Socket Connection
+io.on("connection", (socket) => {
+
+	socket.on("new_client", (msg) => {
+		socket.emit("new_client", `client connected: ${msg}`);
+		console.log(`client connected: ${msg}`);
+	});
+
+	socket.on("redis_set", (data) => {
+		socket.emit("redis_set", data);
+	});
+
 });
 
 
