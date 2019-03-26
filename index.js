@@ -24,7 +24,7 @@ client.once("ready", () => {
 		if (err) {
 			throw err;
 		} else {
-			console.log(`KEYS: ${JSON.parse(data)}`);
+			console.log(`KEYS: ${data}`);
 		}
 	});
 });
