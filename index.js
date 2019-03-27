@@ -39,9 +39,8 @@ app.post("/set", function(req, res) {
 			throw err;
 		} else {
 
-			console.log(req.body);
-			value.test = "TEST";
 			console.log(value);
+			console.log(value[0]);
 
 			io.emit("redis_set", value);
 			res.send({
