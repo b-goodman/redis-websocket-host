@@ -39,11 +39,9 @@ app.post("/set", function(req, res) {
 			throw err;
 		} else {
 			console.log(value);
-			//let msg = JSON.parse(value);
-			let msg = value;
-			msg.job_id = key;
-			console.log(msg);
-			io.emit("redis_set", msg);
+			value.job_id = key;
+			console.log(value);
+			io.emit("redis_set", value);
 			res.send({
 				"status": "OK",
 				"reply": reply
