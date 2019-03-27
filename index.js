@@ -42,7 +42,7 @@ app.post("/set", function(req, res) {
 			console.log(value);
 
 			console.log(`{${value}}`);
-			
+			console.log(JSON.stringify(`{${value}}`));
 
 			io.emit("redis_set", value);
 			res.send({
