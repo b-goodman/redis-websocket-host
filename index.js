@@ -32,7 +32,7 @@ client.once("ready", () => {
 //API
 app.post("/set", function(req, res) {
 	const key = req.body.key;
-	let value = JSON.parse(req.body.value);
+	let value = req.body.value;
 
 	client.set(key, value, (err, reply) => {
 		if (err) {
