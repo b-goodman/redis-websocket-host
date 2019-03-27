@@ -38,7 +38,7 @@ app.post("/set", function(req, res) {
 		if (err) {
 			throw err;
 		} else {
-			io.emit("redis_set", {key:key, value:value}); //send message directly to your socket parser
+			io.emit("redis_set", req.body); //send message directly to your socket parser
 			res.send({
 				"status": "OK",
 				"reply": reply
