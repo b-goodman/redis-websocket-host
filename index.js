@@ -32,7 +32,7 @@ client.once("ready", () => {
 //API
 app.post("/set", function(req, res) {
 	const key = req.body.key;
-	let value = req.body.value;
+	let value = JSON.parse(req.body.value);
 
 	client.set(key, value, (err, reply) => {
 		if (err) {
@@ -40,9 +40,9 @@ app.post("/set", function(req, res) {
 		} else {
 
 			console.log(req.body);
-			console.log(Object.values(value).join());
+			console.log(value);
 
-			io.emit("redis_set", Object.values(value).join());
+			io.emit("redis_set", value);
 			res.send({
 				"status": "OK",
 				"reply": reply
