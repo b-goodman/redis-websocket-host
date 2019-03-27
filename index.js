@@ -34,7 +34,7 @@ app.post("/set", function(req, res) {
 	const key = req.body.key;
 	let msg = req.body;
 
-	client.set(key, msg, (err, reply) => {
+	client.set(key, JSON.stringify(msg), (err, reply) => {
 		if (err) {
 			throw err;
 		} else {
