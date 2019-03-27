@@ -6,9 +6,9 @@ const io = require("socket.io")(http);
 // const fs = require("fs");
 const config = require("./config.json");
 
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
+// app.use(bodyParser.urlencoded({
+// 	extended: true
+// }));
 
 const redis = require("redis");
 const client = redis.createClient(`redis://${config.redis.host}:${config.redis.port}`);
