@@ -40,6 +40,7 @@ app.post("/set", function(req, res) {
 		} else {
 
 			console.log(req.body);
+			value.test = "TEST";
 			console.log(value);
 
 			io.emit("redis_set", value);
