@@ -40,9 +40,9 @@ app.post("/set", function(req, res) {
 		} else {
 
 
-			console.log(Object.keys(value));
+			console.log(Object.values(value));
 
-			io.emit("redis_set", Object.keys(value));
+			io.emit("redis_set", Object.values(value));
 			res.send({
 				"status": "OK",
 				"reply": reply
