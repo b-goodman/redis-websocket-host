@@ -32,15 +32,15 @@ client.once("ready", () => {
 //API
 app.post("/set", function(req, res) {
 	const key = req.body.key;
-	const value = req.body.value;
+	let value = req.body.value;
 
 	client.set(key, value, (err, reply) => {
 		if (err) {
 			throw err;
 		} else {
-			let msg = value;
+			let msg = JSON.parse(value);
 			msg.job_id = key;
-			io.emit("redis_set", msg); //send message directly to your socket parser
+			io.emit("redis_set", msg);
 			res.send({
 				"status": "OK",
 				"reply": reply
