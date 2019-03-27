@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("redis_set", (data) => {
-		socket.emit("redis_set", data);
+		socket.json.send("redis_set", data);
 	});
 
 });
