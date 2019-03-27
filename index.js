@@ -38,8 +38,11 @@ app.post("/set", function(req, res) {
 		if (err) {
 			throw err;
 		} else {
-			console.log(value);
-			io.emit("redis_set", value);
+
+
+			console.log(Object.keys(value));
+
+			io.emit("redis_set", Object.keys(value));
 			res.send({
 				"status": "OK",
 				"reply": reply
@@ -58,7 +61,7 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("redis_set", (data) => {
-		socket.json.send("redis_set", data);
+		socket.emit("redis_set", data);
 	});
 
 });
