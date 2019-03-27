@@ -32,20 +32,16 @@ client.once("ready", () => {
 //API
 app.post("/set", function(req, res) {
 	const key = req.body.key;
-	let value = req.body.value;
+	let msg = req.body;
 
-	client.set(key, value, (err, reply) => {
+	client.set(key, msg, (err, reply) => {
 		if (err) {
 			throw err;
 		} else {
 
-			console.log(value);
+			console.log(msg);
 
-			console.log(`{${value}}`);
-			console.log(JSON.stringify(`{${value}}`));
-			console.log(JSON.parse(`{${value}}`));
-
-			io.emit("redis_set", value);
+			io.emit("redis_set", msg);
 			res.send({
 				"status": "OK",
 				"reply": reply
