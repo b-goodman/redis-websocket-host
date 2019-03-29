@@ -40,7 +40,7 @@ app.post("/set", function(req, res) {
 
 			console.log(msg);
 
-			io.to(`${key}`).emit(msg);
+			io.of(`${key}`).emit(msg);
 			io.emit("redis_set", msg);
 			res.send({
 				"status": "OK",
