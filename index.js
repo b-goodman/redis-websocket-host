@@ -38,10 +38,9 @@ app.post("/set", function(req, res) {
 			throw err;
 		} else {
 
-			
 			console.log(`KEY: ${key} - MSG: ${msg}`);
 
-			io.of(`redis-key-${key}`).emit(msg);
+			io.of(`redis-key-${key}`).emit("set",msg);
 			io.emit("redis_set", msg);
 			res.send({
 				"status": "OK",
@@ -55,6 +54,12 @@ io.of(/^\/redis-key-\d+$/).on("connect", (socket) => {
 	const newNamespace = socket.nsp; // newNamespace.name === '/dynamic-101'
 	// broadcast to all clients in the given sub-namespace
 	newNamespace.emit(`Listening on ${socket.id}`);
+
+	socket.on("set", function (data) {
+		io.of(newNamespace).emit("set", data);
+		// or socket.emit(...)
+		//console.log('broadcasting my-message', data);
+	});
 });
 
 
