@@ -50,7 +50,7 @@ app.post("/set", function(req, res) {
 	});
 });
 
-io.of(/^\/redis-key-\w+$/).on("connection", (socket) => {
+io.of(/^\/redis-key-[\w,-]+$/).on("connection", (socket) => {
 	const newNamespace = socket.nsp; // newNamespace.name === '/dynamic-101'
 	// broadcast to all clients in the given sub-namespace
 	newNamespace.emit("new_client",`Listening on ${socket.nsp.name}`);
