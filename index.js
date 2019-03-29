@@ -17,9 +17,8 @@ const client = redis.createClient(`redis://${config.redis.host}:${config.redis.p
 client.once("ready", () => {
 	console.log(`Redis client connected on ${config.redis.host}:${config.redis.port}`);
 	// Flush Redis DB
-	client.flushdb();
+	// client.flushdb();
 
-	// Initialize
 	client.keys("*", function(err, data) {
 		if (err) {
 			throw err;
@@ -41,6 +40,7 @@ app.post("/set", function(req, res) {
 
 			console.log(msg);
 
+			io.to(`${key}`).emit(msg);
 			io.emit("redis_set", msg);
 			res.send({
 				"status": "OK",
