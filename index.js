@@ -32,18 +32,18 @@ app.put("/set", function(req, res) {
 	const key = req.body.key;
 	let msg = req.body;
 
-	client.set(key, JSON.stringify(msg), async (err, reply) => {
+	client.set(key, JSON.stringify(msg), async (err) => {
 		if (err) {
 			throw err;
 		} else {
 
 			console.log(`KEY: ${key} - MSG: ${msg}`);
 
-			io.of(`redis-key-${key}`).emit("update",msg);
-			const namespace = io.emit("redis_update", msg);
+			const nsp = io.of(`redis-key-${key}`).emit("update",msg);
+			io.emit("global_redis_update", `${nsp.name} set to ${msg}`);
 			res.send({
 				"status": "OK",
-				"reply": `socket on ${namespace.name} updated: ${reply}`
+				"reply": `${nsp.name} set to ${msg}`
 			});
 		}
 	});
@@ -53,18 +53,18 @@ app.put("/push", function(req, res) {
 	const key = req.body.key;
 	let msg = req.body;
 
-	client.lpush(key, JSON.stringify(msg), (err, reply) => {
+	client.lpush(key, JSON.stringify(msg), (err) => {
 		if (err) {
 			throw err;
 		} else {
 
 			console.log(`KEY: ${key} - MSG: ${msg}`);
 
-			io.of(`redis-key-${key}`).emit("update",msg);
-			io.emit("redis_update", msg);
+			const nsp = io.of(`redis-key-${key}`).emit("update",msg);
+			io.emit("global_redis_update", `${nsp.name} set to ${msg}`);
 			res.send({
 				"status": "OK",
-				"reply": reply
+				"reply": `${nsp.name} set to ${msg}`
 			});
 		}
 	});
@@ -78,10 +78,8 @@ io.of(/^\/redis-key-[\w,-]+$/).on("connection", (socket) => {
 	// broadcast to all clients in the given sub-namespace
 	newNamespace.emit("new_client",`Listening on ${socket.nsp.name}`);
 
-	socket.on("update", function (data) {
+	socket.on("update", (data) => {
 		io.of(newNamespace).emit("update", data);
-		// or socket.emit(...)
-		//console.log('broadcasting my-message', data);
 	});
 });
 
@@ -94,7 +92,7 @@ io.on("connection", (socket) => {
 		console.log(`client connected: ${msg}`);
 	});
 
-	socket.on("redis_update", (data) => {
+	socket.on("global_redis_update", (data) => {
 		socket.emit("redis_update", data);
 	});
 
