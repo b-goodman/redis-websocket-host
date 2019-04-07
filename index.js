@@ -39,7 +39,7 @@ app.put("/set", function(req, res) {
 	const key = req.body.key;
 	let msg = req.body;
 
-	client.update(key, JSON.stringify(msg), async (err, reply) => {
+	client.set(key, JSON.stringify(msg), async (err, reply) => {
 		if (err) {
 			throw err;
 		} else {
