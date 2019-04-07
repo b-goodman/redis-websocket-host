@@ -16,8 +16,6 @@ const client = redis.createClient(`redis://${config.redis.host}:${config.redis.p
 // Redis Client
 client.once("ready", () => {
 	console.log(`Redis client connected on ${config.redis.host}:${config.redis.port}`);
-	// Flush Redis DB
-	// client.flushdb();
 
 	client.keys("*", function(err, data) {
 		if (err) {
@@ -28,20 +26,50 @@ client.once("ready", () => {
 	});
 });
 
+
+const routeDynamicSocket = (sockt_server, socket_key, message ) => {
+	return new Promise( (resolve) => {
+		sockt_server.of(`redis-key-${socket_key}`).emit("update",message);
+		resolve( sockt_server.emit("redis_update", message) );
+	});
+};
+
 //API
-app.post("/set", function(req, res) {
+app.put("/set", function(req, res) {
 	const key = req.body.key;
 	let msg = req.body;
 
-	client.set(key, JSON.stringify(msg), (err, reply) => {
+	client.update(key, JSON.stringify(msg), async (err, reply) => {
 		if (err) {
 			throw err;
 		} else {
 
 			console.log(`KEY: ${key} - MSG: ${msg}`);
 
-			io.of(`redis-key-${key}`).emit("set",msg);
-			io.emit("redis_set", msg);
+			// io.of(`redis-key-${key}`).emit("update",msg);
+			// io.emit("redis_update", msg);
+			const namespace = await routeDynamicSocket( io, key, msg );
+			res.send({
+				"status": "OK",
+				"reply": `socket on ${namespace} updated: ${reply}`
+			});
+		}
+	});
+});
+
+app.put("/push", function(req, res) {
+	const key = req.body.key;
+	let msg = req.body;
+
+	client.lpush(key, JSON.stringify(msg), (err, reply) => {
+		if (err) {
+			throw err;
+		} else {
+
+			console.log(`KEY: ${key} - MSG: ${msg}`);
+
+			io.of(`redis-key-${key}`).emit("update",msg);
+			io.emit("redis_update", msg);
 			res.send({
 				"status": "OK",
 				"reply": reply
@@ -50,13 +78,16 @@ app.post("/set", function(req, res) {
 	});
 });
 
+
+// dynamic socket handling
+
 io.of(/^\/redis-key-[\w,-]+$/).on("connection", (socket) => {
 	const newNamespace = socket.nsp; // newNamespace.name === '/dynamic-101'
 	// broadcast to all clients in the given sub-namespace
 	newNamespace.emit("new_client",`Listening on ${socket.nsp.name}`);
 
-	socket.on("set", function (data) {
-		io.of(newNamespace).emit("set", data);
+	socket.on("update", function (data) {
+		io.of(newNamespace).emit("update", data);
 		// or socket.emit(...)
 		//console.log('broadcasting my-message', data);
 	});
@@ -71,8 +102,8 @@ io.on("connection", (socket) => {
 		console.log(`client connected: ${msg}`);
 	});
 
-	socket.on("redis_set", (data) => {
-		socket.emit("redis_set", data);
+	socket.on("redis_update", (data) => {
+		socket.emit("redis_update", data);
 	});
 
 });
