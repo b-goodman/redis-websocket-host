@@ -27,13 +27,6 @@ client.once("ready", () => {
 });
 
 
-const routeDynamicSocket = (sockt_server, socket_key, message ) => {
-	return new Promise( (resolve) => {
-		sockt_server.of(`redis-key-${socket_key}`).emit("update",message);
-		resolve( sockt_server.emit("redis_update", message) );
-	});
-};
-
 //API
 app.put("/set", function(req, res) {
 	const key = req.body.key;
@@ -46,12 +39,11 @@ app.put("/set", function(req, res) {
 
 			console.log(`KEY: ${key} - MSG: ${msg}`);
 
-			// io.of(`redis-key-${key}`).emit("update",msg);
-			// io.emit("redis_update", msg);
-			const namespace = await routeDynamicSocket( io, key, msg );
+			io.of(`redis-key-${key}`).emit("update",msg);
+			const namespace = io.emit("redis_update", msg);
 			res.send({
 				"status": "OK",
-				"reply": `socket on ${namespace} updated: ${reply}`
+				"reply": `socket on ${namespace.name} updated: ${reply}`
 			});
 		}
 	});
