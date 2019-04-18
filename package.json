@@ -11,8 +11,10 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-prettify": "^0.1.1",
     "expressjs": "^1.0.1",
     "redis": "^2.8.0",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "validate.io-json": "^1.0.0"
   }
 }

@@ -6,6 +6,12 @@ const io = require("socket.io")(http);
 // const fs = require("fs");
 const config = require("./config.json");
 
+const jsonPretty = require("express-prettify");
+
+app.use(jsonPretty({
+	query: "pretty"
+}));
+
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
@@ -71,6 +77,46 @@ app.put("/push", function(req, res) {
 				"reply": `${nsp.name} set to ${msg}`
 			});
 		}
+	});
+});
+
+
+const isParsableJson = require("validate.io-json");
+
+const deepParse = (arrayOrElement) => {
+	if ( Array.isArray(arrayOrElement) ) {
+		return arrayOrElement.map( arrayElem => {
+			return deepParse( arrayElem );
+		});
+	} else if ( isParsableJson(arrayOrElement) ) {
+		return JSON.parse(arrayOrElement);
+	} else {
+		return arrayOrElement;
+	}
+};
+
+const isJson = (str) => {
+	const regex = /{([\w\d]+:([\w\d]+|\[\]|(\[[\w\d]+(,[\w\d])*)+\]),*)+}/;
+	return regex.test(str);
+};
+
+const getJsonObj = (str) => {
+	return isJson(str) ?  JSON.stringify((new Function(`return ${str}`))()) : str;
+};
+
+app.get("/*", (req, res) => {
+	console.log(req);
+	const cmdArray = req.params[0].split("/");
+	const parsedArray = cmdArray.map( str => { return getJsonObj(str); });
+
+	client.multi([
+		parsedArray
+	]).exec(function (err, replies) {
+		res.json({
+			args: parsedArray,
+			response: deepParse(replies)
+		});
+		console.log(replies);
 	});
 });
 
